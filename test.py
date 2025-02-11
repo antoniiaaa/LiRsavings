@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 def future_savings_calculator():
     print("Savings Calculator")
     
-    income = float(input("Masukkan penghasilan bulanan (Rp): "))
-    expenses = float(input("Masukkan pengeluaran bulanan (Rp): "))
-    annual_interest_rate = float(input("Masukkan bunga tahunan (%): "))
-    years = int(input("Masukkan durasi menabung (tahun): "))
-    initial_savings = float(input("Masukkan tabungan awal (Rp, opsional, default 0): ") or 0)
+    income = float(input("Penghasilan bulanan (Rp): "))
+    expenses = float(input("Pengeluaran bulanan (Rp): "))
+    annual_interest_rate = float(input("Bunga tahunan (%): "))
+    years = int(input("Durasi menabung (tahun): "))
+    initial_savings = float(input("Tabungan awal (Rp, opsional, default 0): ") or 0)
 
     monthly_savings = income - expenses
     if monthly_savings <= 0:
@@ -30,6 +30,12 @@ def future_savings_calculator():
     # graph
     plt.figure(figsize=(10, 6))
     plt.plot(range(1, total_months + 1), savings_progress, label="Perkembangan Tabungan")
+    
+    num_labels = 10  # banyak label yang ingin ditampilkan
+    step = max(1, total_months // num_labels)  # interval label
+    for i in range(0, total_months, step):
+        plt.text(i + 1, savings_progress[i], f"Rp{savings_progress[i]:,.0f}", fontsize=8, ha='right')
+    
     plt.title("Grafik Perkembangan Tabungan")
     plt.xlabel("Bulan")
     plt.ylabel("Total Tabungan (Rp)")

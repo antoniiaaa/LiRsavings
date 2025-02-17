@@ -1,6 +1,7 @@
-# pip install pyinstaller
-# pip install matplotlib as plt
- 
+import tkinter as tk
+from tkinter import messagebox
+import matplotlib.pyplot as plt
+
 # KALKULATOR UTANG
 class DebtCalculator:
     def __init__(self, principal, annual_interest_rate, periods):
@@ -18,12 +19,10 @@ class DebtCalculator:
         return A
 
     def calculate_total_payment(self):
-        monthly_installment = self.calculate_monthly_installment()
-        return monthly_installment * self.periods
+        return self.calculate_monthly_installment() * self.periods
 
     def calculate_total_interest(self):
-        total_payment = self.calculate_total_payment()
-        return total_payment - self.principal
+        return self.calculate_total_payment() - self.principal
 
     def calculate_remaining_balance(self, paid_periods):
         r = self.monthly_interest_rate
@@ -34,86 +33,110 @@ class DebtCalculator:
         remaining_balance = P * ((1 + r)**n - (1 + r)**t) / ((1 + r)**n - 1)
         return remaining_balance
 
-    def calculate_interest_for_period(self, remaining_balance):
-        return remaining_balance * self.monthly_interest_rate
+# Fungsi untuk menampilkan hasil kalkulator utang
+def show_debt_results():
+    try:
+        principal = float(entry_principal.get())
+        interest_rate = float(entry_interest.get())
+        periods = int(entry_periods.get())
 
-# KALKULATOR TABUNGAN
-import matplotlib.pyplot as plt
+        calculator = DebtCalculator(principal, interest_rate, periods)
+        monthly_installment = calculator.calculate_monthly_installment()
+        total_payment = calculator.calculate_total_payment()
+        total_interest = calculator.calculate_total_interest()
+        remaining_balance = calculator.calculate_remaining_balance(12)
 
-def future_savings_calculator():
-    print("Savings Calculator")
-    
-    income = float(input("Penghasilan bulanan (Rp): "))
-    expenses = float(input("Pengeluaran bulanan (Rp): "))
-    annual_interest_rate = float(input("Bunga tahunan (%): "))
-    years = int(input("Durasi menabung (tahun): "))
-    initial_savings = float(input("Tabungan awal (Rp, opsional, default 0): ") or 0)
+        result_text = (
+            f"Angsuran Bulanan: Rp {monthly_installment:,.2f}\n"
+            f"Total Pembayaran: Rp {total_payment:,.2f}\n"
+            f"Total Bunga: Rp {total_interest:,.2f}\n"
+            f"Sisa Utang setelah 12 bulan: Rp {remaining_balance:,.2f}"
+        )
+        messagebox.showinfo("Hasil Kalkulasi Utang", result_text)
+    except ValueError:
+        messagebox.showerror("Input Error", "Masukkan angka yang valid!")
 
-    monthly_savings = income - expenses
-    if monthly_savings <= 0:
-        print("Pengeluaran lebih besar atau sama dengan penghasilan. Tidak ada tabungan yang bisa dihitung.")
-        return
+# Fungsi untuk kalkulator tabungan
+def show_savings_results():
+    try:
+        income = float(entry_income.get())
+        expenses = float(entry_expenses.get())
+        annual_interest_rate = float(entry_savings_interest.get())
+        years = int(entry_years.get())
+        initial_savings = float(entry_initial_savings.get() or 0)
 
-    monthly_interest_rate = annual_interest_rate / 100 / 12
-    total_months = years * 12
+        monthly_savings = income - expenses
+        if monthly_savings <= 0:
+            messagebox.showerror("Error", "Pengeluaran lebih besar dari penghasilan!")
+            return
 
-    # savings simulation development
-    savings_progress = []
-    current_savings = initial_savings
+        monthly_interest_rate = annual_interest_rate / 100 / 12
+        total_months = years * 12
+        savings_progress = []
+        current_savings = initial_savings
 
-    for month in range(1, total_months + 1):
-        current_savings = current_savings * (1 + monthly_interest_rate) + monthly_savings
-        savings_progress.append(current_savings)
+        for _ in range(total_months):
+            current_savings = current_savings * (1 + monthly_interest_rate) + monthly_savings
+            savings_progress.append(current_savings)
 
-    print(f"\nTotal tabungan di akhir {years} tahun: Rp{current_savings:,.2f}")
+        result_text = f"Total tabungan setelah {years} tahun: Rp {current_savings:,.2f}"
+        messagebox.showinfo("Hasil Kalkulasi Tabungan", result_text)
 
-    # graph
-    plt.figure(figsize=(10, 6))
-    plt.plot(range(1, total_months + 1), savings_progress, label="Perkembangan Tabungan")
-    
-    num_labels = 10  # banyak label yang ingin ditampilkan
-    step = max(1, total_months // num_labels)  # interval label
-    for i in range(0, total_months, step):
-        plt.text(i + 1, savings_progress[i], f"Rp{savings_progress[i]:,.0f}", fontsize=8, ha='right')
-    
-    plt.title("Grafik Perkembangan Tabungan")
-    plt.xlabel("Bulan")
-    plt.ylabel("Total Tabungan (Rp)")
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
+        # graph
+        plt.figure(figsize=(10, 6))
+        plt.plot(range(1, total_months + 1), savings_progress, label="Perkembangan Tabungan")
+        
+        num_labels = 10  # banyak label yang ingin ditampilkan
+        step = max(1, total_months // num_labels)  # interval label
+        for i in range(0, total_months, step):
+            plt.text(i + 1, savings_progress[i], f"Rp{savings_progress[i]:,.0f}", fontsize=8, ha='right')
+        
+        plt.title("Grafik Perkembangan Tabungan")
+        plt.xlabel("Bulan")
+        plt.ylabel("Total Tabungan (Rp)")
+        plt.grid(True)
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
 
-if __name__ == "__main__":
-    principal = int(input("Utang: "))  
-    annual_interest_rate = int(input("annual interest rate: "))
-    periods = int(input("angusran: "))
+    except ValueError:
+        messagebox.showerror("Input Error", "Masukkan angka yang valid!")
 
-    calculator = DebtCalculator(principal, annual_interest_rate, periods)
+# GUI dengan Tkinter
+root = tk.Tk()
+root.title("Kalkulator Utang & Tabungan")
+root.geometry("1000x500")
 
-    monthly_installment = calculator.calculate_monthly_installment()
-    print(f"Angsuran Bulanan: Rp {monthly_installment:,.2f}")
+# Input untuk kalkulator utang
+tk.Label(root, text="Kalkulator Utang").pack()
+tk.Label(root, text="Jumlah Utang (Rp)").pack()
+entry_principal = tk.Entry(root)
+entry_principal.pack()
+tk.Label(root, text="Bunga Tahunan (%)").pack()
+entry_interest = tk.Entry(root)
+entry_interest.pack()
+tk.Label(root, text="Lama Cicilan (bulan)").pack()
+entry_periods = tk.Entry(root)
+entry_periods.pack()
+tk.Button(root, text="Hitung Utang", command=show_debt_results).pack(pady=5)
 
-    total_payment = calculator.calculate_total_payment()
-    print(f"Total Pembayaran: Rp {total_payment:,.2f}")
+# Input untuk kalkulator tabungan
+tk.Label(root, text="Kalkulator Tabungan").pack()
+tk.Label(root, text="Penghasilan Bulanan (Rp)").pack()
+entry_income = tk.Entry(root)
+entry_income.pack()
+tk.Label(root, text="Pengeluaran Bulanan (Rp)").pack()
+entry_expenses = tk.Entry(root)
+entry_expenses.pack()
+tk.Label(root, text="Bunga Tabungan Tahunan (%)").pack()
+entry_savings_interest = tk.Entry(root)
+entry_savings_interest.pack()
+tk.Label(root, text="Durasi Menabung (tahun)").pack()
+entry_years = tk.Entry(root)
+entry_years.pack()
+tk.Label(root, text="Tabungan Awal (opsional)").pack()
+entry_initial_savings = tk.Entry(root)
+entry_initial_savings.pack()
+tk.Button(root, text="Hitung Tabungan", command=show_savings_results).pack(pady=5)
 
-    total_interest = calculator.calculate_total_interest()
-    print(f"Total Bunga yang Dibayar: Rp {total_interest:,.2f}")
-
-    paid_periods = 12  
-    remaining_balance = calculator.calculate_remaining_balance(paid_periods)
-    print(f"Sisa Utang setelah {paid_periods} bulan: Rp {remaining_balance:,.2f}")
-
-    interest_for_period = calculator.calculate_interest_for_period(remaining_balance)
-    print(f"Bunga untuk bulan berikutnya: Rp {interest_for_period:,.2f}")
-
-    # KALKULATOR TABUNGAN
-    future_savings_calculator()
-
-
-
-
-
-
-
-
+root.mainloop()

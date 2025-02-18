@@ -58,29 +58,30 @@ def show_debt_results():
 
 # Fungsi untuk kalkulator tabungan
 def show_savings_results():
-    try:
-        income = float(entry_income.get())
-        expenses = float(entry_expenses.get())
-        annual_interest_rate = float(entry_savings_interest.get())
-        years = int(entry_years.get())
-        initial_savings = float(entry_initial_savings.get() or 0)
+    def future_savings_calculator():
+    
+        income = float(input("Penghasilan bulanan (Rp): "))
+        expenses = float(input("Pengeluaran bulanan (Rp): "))
+        annual_interest_rate = float(input("Bunga tahunan (%): "))
+        years = int(input("Durasi menabung (tahun): "))
+        initial_savings = float(input("Tabungan awal (Rp, opsional, default 0): ") or 0)
 
         monthly_savings = income - expenses
         if monthly_savings <= 0:
-            messagebox.showerror("Error", "Pengeluaran lebih besar dari penghasilan!")
+            print("Pengeluaran lebih besar atau sama dengan penghasilan. Tidak ada tabungan yang bisa dihitung.")
             return
 
         monthly_interest_rate = annual_interest_rate / 100 / 12
         total_months = years * 12
+
+        # savings simulation development
         savings_progress = []
         current_savings = initial_savings
 
-        for _ in range(total_months):
+        for month in range(1, total_months + 1):
             current_savings = current_savings * (1 + monthly_interest_rate) + monthly_savings
             savings_progress.append(current_savings)
 
-        result_text = f"Total tabungan setelah {years} tahun: Rp {current_savings:,.2f}"
-        messagebox.showinfo("Hasil Kalkulasi Tabungan", result_text)
 
         # graph
         plt.figure(figsize=(10, 6))
@@ -99,15 +100,12 @@ def show_savings_results():
         plt.tight_layout()
         plt.show()
 
-    except ValueError:
-        messagebox.showerror("Input Error", "Masukkan angka yang valid!")
 
 # GUI dengan Tkinter
 root = tk.Tk()
 root.title("Kalkulator Utang & Tabungan")
 root.geometry("1000x500")
 
-# Input untuk kalkulator utang
 tk.Label(root, text="Kalkulator Utang").pack()
 tk.Label(root, text="Jumlah Utang (Rp)").pack()
 entry_principal = tk.Entry(root)
@@ -120,7 +118,6 @@ entry_periods = tk.Entry(root)
 entry_periods.pack()
 tk.Button(root, text="Hitung Utang", command=show_debt_results).pack(pady=5)
 
-# Input untuk kalkulator tabungan
 tk.Label(root, text="Kalkulator Tabungan").pack()
 tk.Label(root, text="Penghasilan Bulanan (Rp)").pack()
 entry_income = tk.Entry(root)
@@ -138,5 +135,4 @@ tk.Label(root, text="Tabungan Awal (opsional)").pack()
 entry_initial_savings = tk.Entry(root)
 entry_initial_savings.pack()
 tk.Button(root, text="Hitung Tabungan", command=show_savings_results).pack(pady=5)
-
 root.mainloop()
